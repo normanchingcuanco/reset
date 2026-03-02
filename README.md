@@ -52,14 +52,18 @@
 
 ## Newly Created Features (RESET Platform Extensions)
 
+### Newly Created Features (RESET Platform Extensions)
+
+|||---|||---|||---  
 | Feature Name | Description | Status |
-|--------------|-------------|--------|
-| About RESET Page | Dedicated professional platform overview page describing RESET’s mission, target audience, and purpose. Includes embedded mock introduction video with redirection to YouTube. | To Be Built |
-| YouTube Integration (Navbar Link) | External YouTube channel link in navigation to drive traffic to the creator’s personal brand while maintaining RESET as a professional platform. | To Be Built |
-| Career Shift Guide (Start Here Page) | Structured flagship guide page outlining why to shift careers, whether it is too late, how to transition, and a roadmap linking to blog posts and videos. | To Be Built |
-| Transition Advisors Section | Dedicated section listing professional transition advisors contributing to RESET, including profile pages with background, expertise, and authored articles. | To Be Built |
-| Advisor Profile Pages | Individual advisor pages displaying professional bio, specialization, and related articles within RESET. | To Be Built |
-| Professional Platform Positioning | Separation of RESET as a structured career transition platform from the personal YouTube brand used for promotion and storytelling. | Implemented (Conceptually Structured) |
+|||---|||---|||---  
+| About RESET Page | Dedicated professional platform overview page describing RESET’s mission, target audience, and purpose. Includes embedded introduction video and structured long-form content powered dynamically from the backend Page model. | ✅ Implemented |
+| YouTube Integration (Navbar Link) | External YouTube channel link integrated into navigation to drive traffic to the creator’s personal brand while maintaining RESET as a structured professional platform. | ✅ Implemented |
+| Career Shift Guide (Start Here Page) | Structured flagship guide page outlining why to shift careers, whether it is too late, how to transition, and a roadmap linking to blog posts and videos. Dynamically managed via backend page system. | ✅ Implemented |
+| Transition Advisors Section | Dedicated section listing professional transition advisors contributing to RESET, including structured database-backed advisor entries and routing. | ✅ Implemented |
+| Advisor Profile Pages | Individual advisor pages displaying professional bio, specialization, and related authored articles dynamically linked via advisor reference in posts. | ✅ Implemented |
+| Professional Platform Positioning | Clear architectural separation of RESET as a structured career transition platform from the personal YouTube brand used for storytelling and promotional reach. | ✅ Implemented (Conceptually Structured) |
+|||---|||---|||---  
 
 ## 4. Other requirements
 

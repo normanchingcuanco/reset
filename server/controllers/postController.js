@@ -2,19 +2,27 @@ const Post = require("../models/Post");
 
 /* ================= CREATE POST ================= */
 exports.createPost = async (req, res) => {
-    try {
-        const newPost = new Post({
-            title: req.body.title,
-            content: req.body.content,
-            author: req.user.id
-        });
+  try {
+    const { title, content, advisor } = req.body;
 
-        const savedPost = await newPost.save();
-        res.status(201).json(savedPost);
+    const newPost = new Post({
+      title,
+      content,
+      author: req.user.id,
+      advisor: advisor || null
+    });
 
-    } catch (error) {
-        res.status(500).json({ message: "Server error." });
-    }
+    const savedPost = await newPost.save();
+
+    const populatedPost = await Post.findById(savedPost._id)
+      .populate("author", "username email")
+      .populate("advisor");
+
+    res.status(201).json(populatedPost);
+  } catch (error) {
+    console.error("Create Post Error:", error);
+    res.status(500).json({ message: "Server error." });
+  }
 };
 
 

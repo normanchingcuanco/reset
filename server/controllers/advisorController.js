@@ -121,23 +121,22 @@ exports.getAdvisorPosts = async (req, res) => {
   try {
     const { slug } = req.params;
 
-    const advisor = await Advisor.findOne({ slug: slug.toLowerCase().trim() });
-    if (!advisor || !advisor.isActive) {
+    const advisor = await Advisor.findOne({
+      slug: slug.toLowerCase().trim(),
+      isActive: true
+    });
+
+    if (!advisor) {
       return res.status(404).json({ message: "Advisor not found." });
     }
 
-    // MVP placeholder: return latest posts (until we add advisor linkage on Post)
-    const posts = await Post.find()
+    const posts = await Post.find({ advisor: advisor._id })
       .populate("author", "username email")
-      .sort({ createdAt: -1 })
-      .limit(20);
+      .sort({ createdAt: -1 });
 
-    res.json({
-      advisor,
-      posts,
-      note: "MVP: Posts are not yet linked to advisors. Next step is adding advisorId on Post."
-    });
+    res.json(posts);
   } catch (error) {
+    console.error("Get Advisor Posts Error:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
