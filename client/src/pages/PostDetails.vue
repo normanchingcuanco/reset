@@ -1,68 +1,115 @@
 <template>
-  <div v-if="post">
-    <h2>{{ post.title }}</h2>
+  <section v-if="post" class="post-wrapper">
+    <div class="post-container">
 
-    <p>{{ post.content }}</p>
+      <!-- TITLE -->
+      <h1 class="post-title">
+        {{ post.title }}
+      </h1>
 
-    <p>
-      <strong>Author:</strong> {{ post.author?.username }}
-    </p>
+      <!-- META -->
+      <div class="post-meta">
+        <span>
+          By {{ post.author?.username }}
+        </span>
 
-    <div v-if="canModify" style="margin-bottom: 10px;">
-      <router-link :to="`/edit/${post._id}`">
-        <button>Edit</button>
-      </router-link>
+        <span v-if="post.advisor">
+          • Advisor:
+          <router-link
+            :to="`/advisors/${post.advisor.slug}`"
+            class="advisor-link"
+          >
+            {{ post.advisor.name }}
+          </router-link>
+        </span>
+      </div>
 
-      <button @click="handleDelete">Delete</button>
+      <!-- CONTENT -->
+      <div
+        class="post-content"
+        v-html="formattedContent"
+      ></div>
+
+      <!-- COMMENTS -->
+      <div class="comments-section">
+        <CommentSection :postId="post._id" />
+      </div>
+
     </div>
+  </section>
 
-    <hr />
-
-    <CommentSection :postId="post._id" />
-  </div>
-
-  <div v-else>
-    <p>Loading...</p>
-  </div>
+  <section v-else class="loading">
+    <p>Loading article...</p>
+  </section>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
-import { useRoute, useRouter } from "vue-router"
+import { ref, onMounted, computed } from "vue"
+import { useRoute } from "vue-router"
 import API from "../services/api"
 import CommentSection from "../components/CommentSection.vue"
 
 const route = useRoute()
-const router = useRouter()
-
 const post = ref(null)
 
-const user = JSON.parse(localStorage.getItem("user"))
-
-const canModify = computed(() => {
-  if (!post.value) return false
-  return user?.id === post.value.author?._id || user?.isAdmin
+const formattedContent = computed(() => {
+  if (!post.value?.content) return ""
+  return post.value.content.replace(/\n/g, "<br/>")
 })
 
-const fetchPost = async () => {
+onMounted(async () => {
   try {
     const res = await API.get(`/posts/${route.params.id}`)
     post.value = res.data
-  } catch (error) {
-    console.log("Error loading post")
+  } catch (err) {
+    console.error("Error loading post:", err)
   }
-}
-
-const handleDelete = async () => {
-  try {
-    await API.delete(`/posts/${route.params.id}`)
-    router.push("/")
-  } catch (error) {
-    alert("Not authorized.")
-  }
-}
-
-onMounted(() => {
-  fetchPost()
 })
 </script>
+
+<style scoped>
+.post-wrapper {
+  padding: 100px 20px;
+  background-color: var(--cream);
+}
+
+.post-container {
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+.post-title {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.post-meta {
+  color: var(--gray);
+  margin-bottom: 40px;
+  font-size: 0.9rem;
+}
+
+.advisor-link {
+  color: var(--terracotta);
+}
+
+.post-content {
+  line-height: 1.9;
+  font-size: 1.05rem;
+  color: var(--black);
+}
+
+.post-content p {
+  margin-bottom: 20px;
+}
+
+.comments-section {
+  margin-top: 80px;
+}
+
+.loading {
+  padding: 100px 20px;
+  text-align: center;
+}
+</style>

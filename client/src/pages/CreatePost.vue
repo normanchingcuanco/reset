@@ -1,48 +1,90 @@
 <template>
-  <div>
-    <h2>Create Post</h2>
+  <section class="form-wrapper">
+    <div class="form-container">
 
-    <form @submit.prevent="handleSubmit">
-      <input
-        v-model="form.title"
-        type="text"
-        placeholder="Title"
-        required
-      />
+      <h1>Create Article</h1>
 
-      <br /><br />
+      <form @submit.prevent="submitPost" class="form-card">
 
-      <textarea
-        v-model="form.content"
-        placeholder="Content"
-        required
-      ></textarea>
+        <label>Title</label>
+        <input v-model="title" required />
 
-      <br /><br />
+        <label>Content</label>
+        <textarea v-model="content" rows="10" required></textarea>
 
-      <button type="submit">Create</button>
-    </form>
-  </div>
+        <button type="submit" class="btn-primary">
+          Publish
+        </button>
+
+      </form>
+
+    </div>
+  </section>
 </template>
 
 <script setup>
-import { reactive } from "vue"
+import { ref } from "vue"
 import { useRouter } from "vue-router"
 import API from "../services/api"
 
 const router = useRouter()
 
-const form = reactive({
-  title: "",
-  content: ""
-})
+const title = ref("")
+const content = ref("")
 
-const handleSubmit = async () => {
+const submitPost = async () => {
   try {
-    await API.post("/posts", form)
-    router.push("/")
-  } catch (error) {
-    alert("You must be logged in.")
+    const res = await API.post("/posts", {
+      title: title.value,
+      content: content.value
+    })
+
+    router.push(`/posts/${res.data._id}`)
+  } catch (err) {
+    console.error("Error creating post:", err)
   }
 }
 </script>
+
+<style scoped>
+.form-wrapper {
+  padding: 100px 20px;
+  background-color: var(--cream);
+}
+
+.form-container {
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+.form-card {
+  background-color: var(--white);
+  padding: 40px;
+  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-top: 20px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+input,
+textarea {
+  padding: 12px;
+  border: 1px solid #ddd;
+  font-family: 'Inter', sans-serif;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--terracotta);
+}
+
+button {
+  margin-top: 30px;
+}
+</style>

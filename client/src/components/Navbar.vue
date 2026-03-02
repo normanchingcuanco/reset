@@ -1,38 +1,47 @@
 <template>
   <nav class="navbar">
-    <router-link to="/">Home</router-link>
+    <div class="nav-container">
 
-    <router-link to="/about">
-      About
-    </router-link>
+      <!-- LOGO -->
+      <router-link to="/" class="nav-logo">
+        <span class="logo-re">RE</span><span class="logo-set">SET</span>
+      </router-link>
 
-    <router-link to="/start-here">
-      Start Here
-    </router-link>
+      <!-- NAV LINKS -->
+      <div class="nav-links">
+        <router-link to="/start-here">Start Here</router-link>
+        <router-link to="/advisors">Advisors</router-link>
+        <router-link to="/about">About</router-link>
 
-    <router-link to="/advisors">
-      Advisors
-    </router-link>
+        <a
+          href="https://www.youtube.com/watch?v=sTJ7AzBIJoI"
+          target="_blank"
+        >
+          YouTube
+        </a>
 
-    <router-link v-if="isLoggedIn" to="/create">
-      Create Post
-    </router-link>
+        <router-link v-if="isLoggedIn" to="/create">
+          Write
+        </router-link>
 
-    <router-link v-if="isAdmin" to="/admin">
-      Admin
-    </router-link>
+        <router-link v-if="isAdmin" to="/admin">
+          Admin
+        </router-link>
 
-    <router-link v-if="!isLoggedIn" to="/login">
-      Login
-    </router-link>
+        <router-link v-if="!isLoggedIn" to="/login">
+          Login
+        </router-link>
 
-    <router-link v-if="!isLoggedIn" to="/register">
-      Register
-    </router-link>
+        <router-link v-if="!isLoggedIn" to="/register">
+          Register
+        </router-link>
 
-    <button v-if="isLoggedIn" @click="logout">
-      Logout
-    </button>
+        <button v-if="isLoggedIn" @click="logout">
+          Logout
+        </button>
+      </div>
+
+    </div>
   </nav>
 </template>
 
@@ -42,18 +51,17 @@ import { useRouter } from "vue-router"
 
 const router = useRouter()
 
-const user = computed(() => {
-  const stored = localStorage.getItem("user")
-  return stored ? JSON.parse(stored) : null
-})
+const user = computed(() =>
+  JSON.parse(localStorage.getItem("user"))
+)
 
-const isLoggedIn = computed(() => {
-  return !!localStorage.getItem("token")
-})
+const isLoggedIn = computed(() =>
+  !!localStorage.getItem("token")
+)
 
-const isAdmin = computed(() => {
-  return user.value?.isAdmin
-})
+const isAdmin = computed(() =>
+  user.value?.isAdmin
+)
 
 const logout = () => {
   localStorage.removeItem("token")
@@ -64,13 +72,72 @@ const logout = () => {
 
 <style scoped>
 .navbar {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  margin-bottom: 20px;
+  background-color: var(--cream);
+  border-bottom: 1px solid #eee;
+  padding: 20px 0;
 }
 
-button {
+.nav-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  letter-spacing: 4px;
+  white-space: nowrap;
+}
+
+.logo-re {
+  color: var(--black);
+}
+
+.logo-set {
+  color: var(--terracotta);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links a,
+.nav-links button {
+  margin-left: 25px;
+  font-weight: 500;
+  color: var(--black);
+  background: none;
+  border: none;
   cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap; /* 🔥 prevents Start Here from breaking */
+}
+
+.nav-links a:hover,
+.nav-links button:hover {
+  color: var(--terracotta);
+}
+
+/* ================= MOBILE FIX ================= */
+
+@media (max-width: 768px) {
+  .nav-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-links a,
+  .nav-links button {
+    margin: 8px 12px;
+  }
 }
 </style>

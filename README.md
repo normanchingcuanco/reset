@@ -74,6 +74,16 @@
 - Add, commit and push your updates to your individual repo.
 - Add the individual repo link in Boodle as s87 - In-Class Prototyping - 1
 
+## User Credentials
+
+- Admin:
+   - username: admin@email.com
+   - password: password123
+
+- User:
+   - username: user@email.com
+   - password: password123
+
 
 ## Session 86 - Deliverables
 

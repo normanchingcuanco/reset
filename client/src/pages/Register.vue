@@ -1,60 +1,103 @@
 <template>
-  <div>
-    <h2>Register</h2>
+  <section class="auth-wrapper">
+    <div class="auth-container">
 
-    <form @submit.prevent="handleSubmit">
-      <input
-        v-model="form.username"
-        type="text"
-        placeholder="Username"
-        required
-      />
+      <h1>Create Account</h1>
+      <p class="auth-subtitle">
+        Start your RESET journey.
+      </p>
 
-      <br /><br />
+      <form @submit.prevent="registerUser" class="auth-card">
 
-      <input
-        v-model="form.email"
-        type="email"
-        placeholder="Email"
-        required
-      />
+        <label>Username</label>
+        <input v-model="username" required />
 
-      <br /><br />
+        <label>Email</label>
+        <input v-model="email" type="email" required />
 
-      <input
-        v-model="form.password"
-        type="password"
-        placeholder="Password"
-        required
-      />
+        <label>Password</label>
+        <input v-model="password" type="password" required />
 
-      <br /><br />
+        <button type="submit" class="btn-primary">
+          Register
+        </button>
 
-      <button type="submit">Register</button>
-    </form>
-  </div>
+      </form>
+
+    </div>
+  </section>
 </template>
 
 <script setup>
-import { reactive } from "vue"
+import { ref } from "vue"
 import { useRouter } from "vue-router"
 import API from "../services/api"
 
 const router = useRouter()
 
-const form = reactive({
-  username: "",
-  email: "",
-  password: ""
-})
+const username = ref("")
+const email = ref("")
+const password = ref("")
 
-const handleSubmit = async () => {
+const registerUser = async () => {
   try {
-    await API.post("/auth/register", form)
-    alert("Registration successful. Please login.")
+    await API.post("/auth/register", {
+      username: username.value,
+      email: email.value,
+      password: password.value
+    })
+
     router.push("/login")
-  } catch (error) {
-    alert(error.response?.data?.message || "Registration failed.")
+  } catch (err) {
+    console.error("Register error:", err)
   }
 }
 </script>
+
+<style scoped>
+.auth-wrapper {
+  padding: 120px 20px;
+  background-color: var(--cream);
+}
+
+.auth-container {
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.auth-subtitle {
+  color: var(--gray);
+  margin-bottom: 40px;
+}
+
+.auth-card {
+  background-color: var(--white);
+  padding: 40px;
+  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+label {
+  margin-top: 20px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  font-family: 'Inter', sans-serif;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--terracotta);
+}
+
+button {
+  margin-top: 30px;
+}
+</style>

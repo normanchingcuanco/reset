@@ -1,24 +1,30 @@
 <template>
-  <div v-if="page">
-    <h1>{{ page.title }}</h1>
+  <section class="about-wrapper">
+    <div v-if="page" class="about-container">
 
-    <div v-if="page.videoUrl" style="margin-bottom: 20px;">
-      <iframe
-        :src="page.videoUrl"
-        width="560"
-        height="315"
-        frameborder="0"
-        allowfullscreen
-      ></iframe>
+      <h1 class="about-title">
+        {{ page.title }}
+      </h1>
+
+      <div v-if="page.videoUrl" class="about-video">
+        <iframe
+          :src="page.videoUrl"
+          frameborder="0"
+          allowfullscreen
+        ></iframe>
+      </div>
+
+      <div
+        class="about-content"
+        v-html="page.content"
+      ></div>
+
     </div>
 
-    <!-- Render HTML content -->
-    <div v-html="page.content"></div>
-  </div>
-
-  <div v-else>
-    <p>Loading...</p>
-  </div>
+    <div v-else class="loading">
+      <p>Loading...</p>
+    </div>
+  </section>
 </template>
 
 <script setup>
@@ -27,16 +33,48 @@ import API from "../services/api"
 
 const page = ref(null)
 
-const fetchPage = async () => {
+onMounted(async () => {
   try {
     const res = await API.get("/pages/about")
     page.value = res.data
-  } catch (error) {
-    console.log("Error loading About page")
+  } catch (err) {
+    console.error("Error loading page:", err)
   }
-}
-
-onMounted(() => {
-  fetchPage()
 })
 </script>
+
+<style scoped>
+.about-wrapper {
+  padding: 100px 20px;
+  background-color: var(--cream);
+}
+
+.about-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-title {
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+}
+
+.about-video {
+  margin-bottom: 40px;
+}
+
+.about-video iframe {
+  width: 100%;
+  height: 400px;
+}
+
+.about-content {
+  line-height: 1.9;
+  font-size: 1.05rem;
+}
+
+.loading {
+  padding: 100px 20px;
+  text-align: center;
+}
+</style>
