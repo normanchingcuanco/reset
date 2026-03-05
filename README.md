@@ -265,7 +265,7 @@ reset
 
 ### Frontend (Vercel)
 
-https://reset-platform.vercel.app
+https://reset-two.vercel.app
 
 ### Backend API (Render)
 
