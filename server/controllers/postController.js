@@ -1,17 +1,39 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
 const Advisor = require("../models/Advisor");
+const mongoose = require("mongoose");
 
 /* ================= CREATE POST ================= */
 exports.createPost = async (req, res) => {
   try {
     const { title, content, advisor } = req.body;
 
+    let advisorId = null;
+
+    // Admin can publish as admin OR on behalf of an advisor
+    if (req.user?.isAdmin && advisor) {
+      advisorId = advisor; // advisor is an Advisor _id from dropdown
+    }
+
+    // Advisors publishing should automatically attach their advisor profile
+    if (!advisorId && req.user?.isAdvisor) {
+      const userObjectId = new mongoose.Types.ObjectId(req.user.id);
+
+      const advisorProfile = await Advisor.findOne({
+        user: userObjectId,
+        isActive: true
+      });
+
+      if (advisorProfile) {
+        advisorId = advisorProfile._id;
+      }
+    }
+
     const newPost = new Post({
       title,
       content,
       author: req.user.id,
-      advisor: advisor || null
+      advisor: advisorId
     });
 
     const savedPost = await newPost.save();
@@ -28,7 +50,6 @@ exports.createPost = async (req, res) => {
 };
 
 
-/* ================= GET ALL POSTS (WITH SEARCH SUPPORT) ================= */
 /* ================= GET ALL POSTS (WITH SEARCH SUPPORT) =================
    GET /api/posts?search=
    Supports searching by:
@@ -127,7 +148,7 @@ exports.incrementViews = async (req, res) => {
   }
 };
 
-/* ================= UPDATE POST (NOW SUPPORTS ADVISOR UPDATE) ================= */
+/* ================= UPDATE POST ================= */
 exports.updatePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -136,15 +157,21 @@ exports.updatePost = async (req, res) => {
       return res.status(404).json({ message: "Post not found." });
     }
 
-    if (post.author.toString() !== req.user.id && !req.user.isAdmin) {
+    // Only Author, Advisor, or Admin can update
+    if (
+      post.author.toString() !== req.user.id &&
+      !req.user.isAdmin &&
+      !req.user.isAdvisor
+    ) {
       return res.status(403).json({ message: "Not authorized." });
     }
 
-    post.title = req.body.title || post.title;
-    post.content = req.body.content || post.content;
+    // Update fields
+    post.title = req.body.title ?? post.title;
+    post.content = req.body.content ?? post.content;
 
-    // NEW: allow updating advisor
-    if (req.body.advisor !== undefined) {
+    // Only Admin can change advisor assignment
+    if (req.user.isAdmin && req.body.advisor !== undefined) {
       post.advisor = req.body.advisor || null;
     }
 
@@ -172,7 +199,12 @@ exports.deletePost = async (req, res) => {
       return res.status(404).json({ message: "Post not found." });
     }
 
-    if (post.author.toString() !== req.user.id && !req.user.isAdmin) {
+    // Only Author, Advisor, or Admin can delete
+    if (
+      post.author.toString() !== req.user.id &&
+      !req.user.isAdmin &&
+      !req.user.isAdvisor
+    ) {
       return res.status(403).json({ message: "Not authorized." });
     }
 

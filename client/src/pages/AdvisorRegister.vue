@@ -2,10 +2,60 @@
   <section class="advisor-register-wrapper">
     <div class="advisor-register-container">
 
+      <!-- ================= ALREADY ADVISOR ================= -->
+      <div v-if="isAdvisor" class="already-advisor">
+
+        <p class="form-eyebrow">Advisor Status</p>
+
+        <h1 class="form-title">
+          You Are Already a Transition Advisor
+        </h1>
+
+        <p class="form-intro">
+          Your advisor profile is already active on RESET.
+          You can publish articles and contribute to the platform.
+        </p>
+
+        <router-link to="/create" class="btn-primary">
+          Write an Article
+        </router-link>
+
+      </div>
+
+      <!-- ================= NOT LOGGED IN ================= -->
+      <div v-else-if="!isLoggedIn" class="login-required">
+
+        <p class="form-eyebrow">Transition Advisor Application</p>
+
+        <h1 class="form-title">
+          Register or Login First
+        </h1>
+
+        <p class="form-intro">
+          To apply as a Transition Advisor, you must first create a RESET account
+          or login to your existing account.
+        </p>
+
+        <div class="auth-buttons">
+          <router-link to="/register" class="btn-primary">
+            Register
+          </router-link>
+
+          <router-link to="/login" class="btn-secondary">
+            Login
+          </router-link>
+        </div>
+
+      </div>
+
       <!-- ================= SUCCESS STATE ================= -->
-      <div v-if="submitted" class="success-state">
+      <div v-else-if="submitted" class="success-state">
+
         <p class="form-eyebrow">Application Submitted</p>
-        <h1 class="form-title">Thank You, {{ name }}.</h1>
+
+        <h1 class="form-title">
+          Thank You, {{ name }}.
+        </h1>
 
         <p class="form-intro">
           Your application has been received and is currently under review.
@@ -14,40 +64,49 @@
 
         <div class="email-preview">
           <p><strong>From:</strong> RESET Platform</p>
-          <p><strong>To:</strong> {{ linkedinUrl || "your email on file" }}</p>
+          <p><strong>To:</strong> your registered email</p>
+
           <hr />
-          <p>
-            Hi {{ name }},
-          </p>
+
+          <p>Hi {{ name }},</p>
+
           <p>
             Thank you for applying to become a Transition Advisor at RESET.
-            Our team will review your application and reach out within 3–5 business days.
+            Our team will review your application and reach out within
+            3–5 business days.
           </p>
+
           <p>
             We appreciate your willingness to support career shifters.
           </p>
-          <p>
-            — RESET Team
-          </p>
+
+          <p>— RESET Team</p>
         </div>
 
         <router-link to="/advisors" class="btn-primary">
           Return to Advisors
         </router-link>
+
       </div>
 
       <!-- ================= FORM ================= -->
       <div v-else>
+
         <p class="form-eyebrow">Transition Advisor Application</p>
-        <h1 class="form-title">Become a Transition Advisor</h1>
+
+        <h1 class="form-title">
+          Become a Transition Advisor
+        </h1>
 
         <p class="form-intro">
-          If you have successfully transitioned into tech and want to guide others,
-          share your experience and help career shifters navigate their journey.
+          If you have successfully transitioned into tech and want to guide
+          others, share your experience and help career shifters navigate
+          their journey.
         </p>
 
         <form @submit.prevent="submitAdvisor" class="advisor-form">
 
+          <!-- BASIC -->
           <div class="form-section">
             <h3>Basic Information</h3>
 
@@ -67,6 +126,7 @@
             </div>
           </div>
 
+          <!-- PROFILE -->
           <div class="form-section">
             <h3>Profile</h3>
 
@@ -86,6 +146,7 @@
             </div>
           </div>
 
+          <!-- LINKS -->
           <div class="form-section">
             <h3>Links</h3>
 
@@ -105,6 +166,7 @@
           </button>
 
         </form>
+
       </div>
 
     </div>
@@ -112,8 +174,22 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+
+import { ref, computed } from "vue"
+import { useRouter } from "vue-router"
 import API from "../services/api"
+
+const router = useRouter()
+
+/* ================= AUTH STATE ================= */
+
+const token = localStorage.getItem("token")
+const isLoggedIn = computed(() => !!token)
+
+const user = JSON.parse(localStorage.getItem("user") || "{}")
+const isAdvisor = computed(() => user?.isAdvisor === true)
+
+/* ================= FORM STATE ================= */
 
 const name = ref("")
 const slug = ref("")
@@ -125,29 +201,52 @@ const linkedinUrl = ref("")
 const websiteUrl = ref("")
 const submitted = ref(false)
 
+/* ================= SUBMIT ================= */
+
 const submitAdvisor = async () => {
+
+  if (!token) {
+    alert("Please login first.")
+    router.push("/login")
+    return
+  }
+
   try {
-    await API.post("/advisors/apply", {
-      name: name.value,
-      slug: slug.value,
-      title: title.value,
-      bio: bio.value,
-      specialties: specialties.value
-        ? specialties.value.split(",").map(s => s.trim()).filter(Boolean)
-        : [],
-      avatarUrl: avatarUrl.value,
-      linkedinUrl: linkedinUrl.value,
-      websiteUrl: websiteUrl.value
-    })
+
+    await API.post(
+      "/advisors/apply",
+      {
+        name: name.value,
+        slug: slug.value,
+        title: title.value,
+        bio: bio.value,
+        specialties: specialties.value
+          ? specialties.value.split(",").map(s => s.trim()).filter(Boolean)
+          : [],
+        avatarUrl: avatarUrl.value,
+        linkedinUrl: linkedinUrl.value,
+        websiteUrl: websiteUrl.value
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
 
     submitted.value = true
+
   } catch (err) {
+    console.error(err)
     alert("Error submitting application.")
   }
+
 }
+
 </script>
 
 <style scoped>
+
 .advisor-register-wrapper {
   padding: 160px 20px;
   background-color: var(--cream);
@@ -176,6 +275,11 @@ const submitAdvisor = async () => {
   margin-bottom: 80px;
   color: var(--gray);
   line-height: 1.9;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 20px;
 }
 
 .advisor-form {
@@ -215,7 +319,7 @@ textarea:focus {
   margin-top: 20px;
 }
 
-/* ================= SUCCESS STATE ================= */
+/* SUCCESS */
 
 .success-state {
   text-align: left;
@@ -232,4 +336,5 @@ textarea:focus {
 .email-preview hr {
   margin: 15px 0;
 }
+
 </style>

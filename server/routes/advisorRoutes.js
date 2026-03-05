@@ -10,7 +10,7 @@ router.get("/:slug", advisorController.getAdvisorBySlug);
 router.get("/:slug/posts", advisorController.getAdvisorPosts);
 
 // Public advisor application
-router.post("/apply", advisorController.applyAdvisor);
+router.post("/apply", verifyToken, advisorController.applyAdvisor);;
 
 // Admin
 router.post("/", verifyToken, verifyAdmin, advisorController.createAdvisor);

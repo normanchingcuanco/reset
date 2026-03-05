@@ -14,11 +14,15 @@ router.get("/:id", postController.getSinglePost);
 // ✅ NEW: Increment post views
 router.put("/:id/view", postController.incrementViews);
 
-
 /* ================= PROTECTED ROUTES ================= */
 
 // Create post
-router.post("/", verifyToken, postController.createPost);
+router.post("/", verifyToken, (req, res, next) => {
+  if (!req.user.isAdmin && !req.user.isAdvisor) {
+    return res.status(403).json({ message: "Only admins or advisors can create posts." });
+  }
+  next();
+}, postController.createPost);
 
 // Update post
 router.put("/:id", verifyToken, postController.updatePost);
