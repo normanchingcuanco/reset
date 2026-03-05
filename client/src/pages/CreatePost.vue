@@ -12,10 +12,11 @@
         <label>Content</label>
         <textarea v-model="content" rows="10" required></textarea>
 
-        <!-- ✅ NEW: Advisor Association -->
-        <label>Associate with Advisor (Optional)</label>
-        <select v-model="selectedAdvisor">
-          <option value="">None</option>
+        <label v-if="user?.isAdmin">Publish On Behalf of Advisor</label>
+
+        <select v-if="user?.isAdmin" v-model="selectedAdvisor">
+          <option value="">Admin Post</option>
+
           <option
             v-for="advisor in advisors"
             :key="advisor._id"
@@ -23,6 +24,7 @@
           >
             {{ advisor.name }}
           </option>
+
         </select>
 
         <button type="submit" class="btn-primary">
@@ -45,36 +47,58 @@ const router = useRouter()
 const title = ref("")
 const content = ref("")
 
-/* ✅ NEW STATE */
 const advisors = ref([])
 const selectedAdvisor = ref("")
 
-/* ✅ LOAD ACTIVE ADVISORS */
+const user = ref(null)
+
+/* LOAD USER + PERMISSION CHECK */
 onMounted(async () => {
-  try {
-    const res = await API.get("/advisors")
-    advisors.value = res.data
-  } catch (err) {
-    console.error("Error loading advisors:", err)
+
+  const storedUser = localStorage.getItem("user")
+
+  if (storedUser) {
+    user.value = JSON.parse(storedUser)
+  }
+
+  /* ONLY ADMIN OR ADVISOR */
+  if (!user.value || (!user.value.isAdmin && !user.value.isAdvisor)) {
+    router.push("/")
+    return
+  }
+
+  /* ADMIN CAN CHOOSE ADVISOR */
+  if (user.value.isAdmin) {
+    try {
+      const res = await API.get("/advisors")
+      advisors.value = res.data
+    } catch (err) {
+      console.error("Error loading advisors:", err)
+    }
   }
 })
 
 const submitPost = async () => {
   try {
-    console.log("Publishing with advisor:", selectedAdvisor.value)
 
-    const res = await API.post("/posts", {
+    const payload = {
       title: title.value,
-      content: content.value,
-      advisor: selectedAdvisor.value || null
-    })
+      content: content.value
+    }
 
-    // Reset form state after successful publish
+    /* ADMIN ASSIGNMENT */
+    if (user.value.isAdmin && selectedAdvisor.value) {
+      payload.advisor = selectedAdvisor.value
+    }
+
+    const res = await API.post("/posts", payload)
+
     title.value = ""
     content.value = ""
     selectedAdvisor.value = ""
 
     router.push(`/posts/${res.data._id}`)
+
   } catch (err) {
     console.error("Error creating post:", err)
   }

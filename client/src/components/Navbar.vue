@@ -20,7 +20,7 @@
           YouTube
         </a>
 
-        <router-link v-if="isLoggedIn" to="/create">
+        <router-link v-if="isAdmin || isAdvisor" to="/create">
           Write
         </router-link>
 
@@ -53,23 +53,23 @@ const router = useRouter()
 
 const isLoggedIn = ref(false)
 const isAdmin = ref(false)
-
-const syncAuthState = () => {
-  const token = localStorage.getItem("token")
-  const user = JSON.parse(localStorage.getItem("user"))
-
-  isLoggedIn.value = !!token
-  isAdmin.value = user?.isAdmin || false
-}
+const isAdvisor = ref(false)
 
 onMounted(() => {
-  syncAuthState()
+  const user = localStorage.getItem("user")
+
+  if (user) {
+    const parsedUser = JSON.parse(user)
+
+    isLoggedIn.value = true
+    isAdmin.value = parsedUser.isAdmin || false
+    isAdvisor.value = parsedUser.isAdvisor || false
+  }
 })
 
 const logout = () => {
   localStorage.removeItem("token")
   localStorage.removeItem("user")
-  syncAuthState()
   router.push("/login")
 }
 </script>

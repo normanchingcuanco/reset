@@ -26,6 +26,7 @@
     <section class="featured">
       <div class="container">
         <h2>Latest Articles</h2>
+        <pre>{{ posts }}</pre>
 
         <div class="posts-grid">
           <div

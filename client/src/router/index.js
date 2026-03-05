@@ -68,7 +68,7 @@ const routes = [
     path: "/advisor-register",
     name: "AdvisorRegister",
     component: () => import("../pages/AdvisorRegister.vue")
-  }
+  },
 ]
 
 const router = createRouter({
@@ -81,17 +81,24 @@ const router = createRouter({
 
 /* ================= ROUTE GUARDS ================= */
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
   const token = localStorage.getItem("token")
-  const user = JSON.parse(localStorage.getItem("user"))
+  const user = JSON.parse(localStorage.getItem("user") || "null")
 
-  if (to.path === "/create" && !token) return next("/login")
-  if (to.path.startsWith("/edit") && !token) return next("/login")
-  if (to.path === "/admin" && !user?.isAdmin) return next("/")
+  if (to.path === "/create" && !token) {
+    return "/login"
+  }
 
-  next()
+  if (to.path.startsWith("/edit") && !token) {
+    return "/login"
+  }
+
+  if (to.path === "/admin" && !user?.isAdmin) {
+    return "/"
+  }
+
+  return true
 })
-
 /* ================= HARD SCROLL FIX =================
    Ensures scroll happens AFTER the new page is rendered
 */

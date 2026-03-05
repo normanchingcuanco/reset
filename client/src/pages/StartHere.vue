@@ -1,5 +1,6 @@
 <template>
-  <div class="page-container" v-if="page">
+
+  <div v-if="page" class="page-container">
     <h1>{{ page.title }}</h1>
 
     <!-- Optional Video -->
@@ -13,6 +14,11 @@
 
     <!-- Render HTML content -->
     <div v-html="page.content"></div>
+
+    <!-- Next Steps Button -->
+    <router-link to="/" class="cta-button">
+      Read Advisor Articles
+    </router-link>
   </div>
 
   <div v-else-if="error">
@@ -22,6 +28,7 @@
   <div v-else>
     <p>Loading...</p>
   </div>
+
 </template>
 
 <script setup>
@@ -68,4 +75,23 @@ onMounted(() => {
   width: 100%;
   height: 100%;
 }
+
+.next-steps {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 14px 26px;
+  background-color: var(--terracotta);
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.cta-button:hover {
+  opacity: 0.9;
+}
+
 </style>

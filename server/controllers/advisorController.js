@@ -1,5 +1,6 @@
 const Advisor = require("../models/Advisor");
 const Post = require("../models/Post");
+const User = require("../models/User");
 
 /* ================= CREATE ADVISOR (ADMIN) =================
    POST /api/advisors
@@ -7,6 +8,7 @@ const Post = require("../models/Post");
 exports.createAdvisor = async (req, res) => {
   try {
     const {
+      userId,
       name,
       slug,
       title,
@@ -18,16 +20,24 @@ exports.createAdvisor = async (req, res) => {
       isActive
     } = req.body;
 
-    if (!name || !slug) {
-      return res.status(400).json({ message: "Name and slug are required." });
+    if (!name || !slug || !userId) {
+      return res.status(400).json({
+        message: "Name, slug, and userId are required."
+      });
     }
 
-    const exists = await Advisor.findOne({ slug: slug.toLowerCase().trim() });
+    const exists = await Advisor.findOne({
+      slug: slug.toLowerCase().trim()
+    });
+
     if (exists) {
-      return res.status(400).json({ message: "Advisor slug already exists." });
+      return res.status(400).json({
+        message: "Advisor slug already exists."
+      });
     }
 
     const advisor = await Advisor.create({
+      user: userId,
       name: name.trim(),
       slug: slug.toLowerCase().trim(),
       title: title || "",
@@ -39,7 +49,15 @@ exports.createAdvisor = async (req, res) => {
       isActive: typeof isActive === "boolean" ? isActive : true
     });
 
+    /* IF ACTIVE → CONVERT USER TO ADVISOR */
+    if (advisor.isActive) {
+      await User.findByIdAndUpdate(userId, {
+        isAdvisor: true
+      });
+    }
+
     res.status(201).json(advisor);
+
   } catch (error) {
     res.status(500).json({ message: "Server error." });
   }
@@ -92,7 +110,7 @@ exports.updateAdvisor = async (req, res) => {
       return res.status(404).json({ message: "Advisor not found." });
     }
 
-    // Only update allowed fields
+    // Update allowed fields
     advisor.name = req.body.name ?? advisor.name;
     advisor.slug = req.body.slug ?? advisor.slug;
     advisor.title = req.body.title ?? advisor.title;
@@ -102,14 +120,26 @@ exports.updateAdvisor = async (req, res) => {
     advisor.linkedinUrl = req.body.linkedinUrl ?? advisor.linkedinUrl;
     advisor.websiteUrl = req.body.websiteUrl ?? advisor.websiteUrl;
 
-    // 🔥 Important: allow toggling active status
+    // Handle activation / deactivation
     if (typeof req.body.isActive === "boolean") {
+
       advisor.isActive = req.body.isActive;
+
+      // Update linked user role
+      if (advisor.user) {
+        await User.findByIdAndUpdate(
+          advisor.user,
+          { isAdvisor: req.body.isActive },
+          { new: true }
+        );
+      }
+
     }
 
     const updated = await advisor.save();
 
     res.json(updated);
+
   } catch (error) {
     console.error("Update Advisor Error:", error);
     res.status(500).json({ message: "Server error." });
@@ -152,9 +182,14 @@ exports.getAdvisorPosts = async (req, res) => {
       return res.status(404).json({ message: "Advisor not found." });
     }
 
-    const posts = await Post.find({ advisor: advisor._id })
-      .populate("author", "username email")
-      .sort({ createdAt: -1 });
+    const posts = await Post.find({
+      $or: [
+        { advisor: advisor._id },
+        { author: advisor.user }
+      ]
+    })
+    .populate("author", "username email")
+    .sort({ createdAt: -1 });
 
     res.json(posts);
   } catch (error) {
@@ -196,6 +231,7 @@ exports.applyAdvisor = async (req, res) => {
     }
 
     const advisor = await Advisor.create({
+      user: req.user.id,
       name: name.trim(),
       slug: slug.toLowerCase().trim(),
       title: title || "",
@@ -204,7 +240,7 @@ exports.applyAdvisor = async (req, res) => {
       avatarUrl: avatarUrl || "",
       linkedinUrl: linkedinUrl || "",
       websiteUrl: websiteUrl || "",
-      isActive: false // IMPORTANT: not public until approved
+      isActive: false
     });
 
     res.status(201).json({
