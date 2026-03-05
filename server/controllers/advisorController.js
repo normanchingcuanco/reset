@@ -2,9 +2,7 @@ const Advisor = require("../models/Advisor");
 const Post = require("../models/Post");
 const User = require("../models/User");
 
-/* ================= CREATE ADVISOR (ADMIN) =================
-   POST /api/advisors
-*/
+/* ================= CREATE ADVISOR (ADMIN) ================= */
 exports.createAdvisor = async (req, res) => {
   try {
     const {
@@ -28,7 +26,7 @@ exports.createAdvisor = async (req, res) => {
 
     const exists = await Advisor.findOne({
       slug: slug.toLowerCase().trim()
-    });
+    }).select("_id");
 
     if (exists) {
       return res.status(400).json({
@@ -49,7 +47,6 @@ exports.createAdvisor = async (req, res) => {
       isActive: typeof isActive === "boolean" ? isActive : true
     });
 
-    // IF ACTIVE → CONVERT USER TO ADVISOR
     if (advisor.isActive) {
       await User.findByIdAndUpdate(userId, {
         isAdvisor: true
@@ -57,63 +54,72 @@ exports.createAdvisor = async (req, res) => {
     }
 
     res.status(201).json(advisor);
+
   } catch (error) {
     console.error("Create Advisor Error:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
 
-/* ================= GET ALL ADVISORS (PUBLIC) =================
-   GET /api/advisors
-*/
+
+/* ================= GET ALL ADVISORS ================= */
 exports.getAllAdvisors = async (req, res) => {
   try {
+
     const isAdminView = req.query.admin === "true";
 
     const advisors = isAdminView
-      ? await Advisor.find().sort({ createdAt: -1 })
-      : await Advisor.find({ isActive: true }).sort({ name: 1 });
+      ? await Advisor.find()
+          .select("name slug title avatarUrl isActive createdAt")
+          .sort({ createdAt: -1 })
+      : await Advisor.find({ isActive: true })
+          .select("name slug title avatarUrl specialties")
+          .sort({ name: 1 });
 
     res.json(advisors);
+
   } catch (error) {
     console.error("Get Advisors Error:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
 
-/* ================= GET ADVISOR BY SLUG (PUBLIC) =================
-   GET /api/advisors/:slug
-*/
+
+/* ================= GET ADVISOR BY SLUG ================= */
 exports.getAdvisorBySlug = async (req, res) => {
   try {
+
     const { slug } = req.params;
 
     const advisor = await Advisor.findOne({
       slug: slug.toLowerCase().trim()
-    });
+    }).select(
+      "name slug title bio specialties avatarUrl linkedinUrl websiteUrl isActive"
+    );
 
     if (!advisor || !advisor.isActive) {
       return res.status(404).json({ message: "Advisor not found." });
     }
 
     res.json(advisor);
+
   } catch (error) {
     console.error("Get Advisor By Slug Error:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
 
-/* ================= GET ADVISOR POSTS (PUBLIC) =================
-   GET /api/advisors/:slug/posts
-*/
+
+/* ================= GET ADVISOR POSTS ================= */
 exports.getAdvisorPosts = async (req, res) => {
   try {
+
     const { slug } = req.params;
 
     const advisor = await Advisor.findOne({
       slug: slug.toLowerCase().trim(),
       isActive: true
-    });
+    }).select("_id user");
 
     if (!advisor) {
       return res.status(404).json({ message: "Advisor not found." });
@@ -122,22 +128,24 @@ exports.getAdvisorPosts = async (req, res) => {
     const posts = await Post.find({
       $or: [{ advisor: advisor._id }, { author: advisor.user }]
     })
-      .populate("author", "username email")
-      .populate("advisor", "name slug")
+      .select("title author advisor views createdAt")
+      .populate("author", "username")
+      .populate("advisor", "name slug avatarUrl")
       .sort({ createdAt: -1 });
 
     res.json(posts);
+
   } catch (error) {
     console.error("Get Advisor Posts Error:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
 
-/* ================= UPDATE ADVISOR (ADMIN) =================
-   PUT /api/advisors/:id
-*/
+
+/* ================= UPDATE ADVISOR ================= */
 exports.updateAdvisor = async (req, res) => {
   try {
+
     const advisor = await Advisor.findById(req.params.id);
 
     if (!advisor) {
@@ -156,7 +164,6 @@ exports.updateAdvisor = async (req, res) => {
     if (typeof req.body.isActive === "boolean") {
       advisor.isActive = req.body.isActive;
 
-      // Update linked user role
       if (advisor.user) {
         await User.findByIdAndUpdate(advisor.user, {
           isAdvisor: req.body.isActive
@@ -166,17 +173,18 @@ exports.updateAdvisor = async (req, res) => {
 
     const updated = await advisor.save();
     res.json(updated);
+
   } catch (error) {
     console.error("Update Advisor Error:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
 
-/* ================= DELETE ADVISOR (ADMIN) =================
-   DELETE /api/advisors/:id
-*/
+
+/* ================= DELETE ADVISOR ================= */
 exports.deleteAdvisor = async (req, res) => {
   try {
+
     const advisor = await Advisor.findById(req.params.id);
 
     if (!advisor) {
@@ -184,18 +192,20 @@ exports.deleteAdvisor = async (req, res) => {
     }
 
     await advisor.deleteOne();
+
     res.json({ message: "Advisor deleted successfully." });
+
   } catch (error) {
     console.error("Delete Advisor Error:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
 
-/* ================= APPLY AS ADVISOR (PROTECTED) =================
-   POST /api/advisors/apply
-*/
+
+/* ================= APPLY AS ADVISOR ================= */
 exports.applyAdvisor = async (req, res) => {
   try {
+
     const {
       name,
       slug,
@@ -213,10 +223,9 @@ exports.applyAdvisor = async (req, res) => {
       });
     }
 
-    // Prevent a user from applying more than once
     const existingAdvisor = await Advisor.findOne({
       user: req.user.id
-    });
+    }).select("_id");
 
     if (existingAdvisor) {
       return res.status(400).json({
@@ -224,10 +233,9 @@ exports.applyAdvisor = async (req, res) => {
       });
     }
 
-    // Prevent duplicate slugs
     const existingSlug = await Advisor.findOne({
       slug: slug.toLowerCase().trim()
-    });
+    }).select("_id");
 
     if (existingSlug) {
       return res.status(400).json({

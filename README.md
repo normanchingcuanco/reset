@@ -1,96 +1,272 @@
-## s87 - In-Class Prototyping
+# 🔄 RESET
 
-### 1. Setup Instructions
+RESET is a fullstack content platform built using the **MEVN stack (MongoDB, Express, Vue, Node.js)** designed for professionals transitioning into technology careers.
 
-1. In a folder outside the individual repo, create an s87-s89 folder.
+The platform documents the **real journey of switching careers into software development**, focusing on practical strategy, mindset shifts, and the learning process required to succeed in tech.
 
-2. In the folder, build a MEVN stack application for a Blog Application with:
+RESET serves as both:
 
-   - Backend API must be in folder called server.
-   - VueJS must be in folder called client.
+- A **technical portfolio demonstrating fullstack development**
+- A **content platform supporting career shifters entering tech**
 
-   - Blog Display
-   - Comments
-   - CRUD operations for Blog Users
-   - Admin Dashboard operations for Admin
-   - Authentication and Login
+---
 
+# 🚀 Overview
 
-## 3. Features
+RESET is a professional knowledge platform built for **career changers moving into software development**.
 
-### User Authentication
+The platform provides:
 
-- Allow users to register with email, username, and password.
-- Enable users to log-in securely.
-- Provide password hashing for secure storage.
+- Articles documenting the transition into tech
+- Structured guidance for career shifters
+- Advisor insights from professionals who have transitioned successfully
+- A long-term content hub for strategy, learning, and career positioning
 
+The project also serves as a **technical demonstration of a fullstack MEVN application**.
 
-### Blog Post Management
+---
 
-- Create, read, update, and delete (CRUD) operations for blog posts.
-- Each post should have a title, content, author information, and creation date.
-- Implement authorization to ensure only authenticated users can create, edit, and delete their own posts.
+# 🧩 Core Features
 
+## 👥 User Features
 
-### All Users
+### Public Access
 
-- All users must be able to view all available posts.
-- All users must be able to view a single post
+- Browse all published articles
+- Read full blog posts
+- View transition advisor profiles
+- Access structured career transition guides
+- Navigate content through advisor insights and platform articles
 
+### Authentication
 
-### Commenting System
+- User registration with email, username, and password
+- Secure login using **JWT authentication**
+- Password hashing using **bcrypt**
+- Role-based access control
 
-- All users must be able to view comments in a single post
-- Allow users to comment on each blog post.
-- Comments should be able to refer to which blog post it belongs to.
+### Authenticated Users
 
+- Create blog posts
+- Edit personal blog posts
+- Delete personal blog posts
+- Submit applications to become transition advisors
 
-### Admin
+---
 
-- Admin allowed to delete any posts.
-- Admin is allowed to remove any comments.
+# 🛠 Admin Features
 
+- Admin dashboard for platform management
+- Create advisor profiles
+- Edit advisor profiles
+- Activate or deactivate advisor accounts
+- Delete advisor profiles
+- Delete any blog post
+- Manage advisor applications
 
-### Newly Added Features (RESET Platform Extensions)
+---
 
-| Feature Name                              | Description                                                                                                                                                                                                                                   | Status                                  |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| About RESET Page                          | Dedicated professional platform overview page describing RESET’s mission, target audience, and purpose. Includes embedded introduction video and structured long-form content powered dynamically from the backend Page model.            | ✅ Implemented                           |
-| YouTube Integration (Navbar Link)         | External YouTube channel link integrated into navigation to drive traffic to the creator’s personal brand while maintaining RESET as a structured professional platform.                                                                   | ✅ Implemented                           |
-| Career Shift Guide (Start Here Page)      | Structured flagship guide page outlining why to shift careers, whether it is too late, how to transition, and a roadmap linking to blog posts and videos. Dynamically managed via backend page system.                                   | ✅ Implemented                           |
-| Transition Advisors Section               | Dedicated section listing professional transition advisors contributing to RESET, including structured database-backed advisor entries and routing.                                                                                        | ✅ Implemented                           |
-| Advisor Profile Pages                     | Individual advisor pages displaying professional bio, specialization, and related authored articles dynamically linked via advisor reference in posts.                                                                                     | ✅ Implemented                           |
-| Professional Platform Positioning         | Clear architectural separation of RESET as a structured career transition platform from the personal YouTube brand used for storytelling and promotional reach.                                                                            | ✅ Implemented (Conceptually Structured) |
-| Advisor Application System                | Public-facing advisor registration form allowing career transition professionals to apply. Applications are stored in the database with inactive status pending administrative approval.                                                 | ✅ Implemented                           |
-| Admin Advisor Approval Workflow           | Admin dashboard functionality enabling approval, deactivation, editing, and deletion of advisor profiles through a controlled moderation system.                                                                                          | ✅ Implemented                           |
-| Advisor Profile Editing (Admin Panel)     | Dedicated admin edit interface allowing modification of advisor name, slug, bio, specialties, avatar, and professional links without database manipulation tools.                                                                         | ✅ Implemented                           |
-| Advisor-Post Association                  | Optional advisor linkage during article creation, allowing posts to be associated with a specific transition advisor and automatically displayed on that advisor’s profile page.                                                         | ✅ Implemented                           |
-| Advisor Thumbnail Optimization            | Face-centered circular thumbnail cropping using object-fit and object-position to ensure professional and visually consistent advisor portrait presentation across the platform.                                                         | ✅ Implemented                           |
-| Advisor Application Confirmation State    | Post-submission success state replacing the advisor registration form, including a simulated professional confirmation email preview to enhance platform credibility and user experience.                                               | ✅ Implemented                         |
+# 📡 API Endpoints
 
+## Authentication
 
-## 4. Other requirements
+| Method | Endpoint | Description |
+|------|------|------|
+| POST | /api/auth/register | Register new user |
+| POST | /api/auth/login | Authenticate and receive JWT |
 
-- Add appropriate error handling, response handling.
+## Posts
 
-## 5. Submission
+| Method | Endpoint | Description |
+|------|------|------|
+| GET | /api/posts | Fetch all blog posts |
+| GET | /api/posts/:id | Fetch single blog post |
+| POST | /api/posts | Create new post |
+| PATCH | /api/posts/:id | Update post |
+| DELETE | /api/posts/:id | Delete post |
+| PATCH | /api/posts/views/:id | Increment post views |
 
-- Add, commit and push your updates to your individual repo.
-- Add the individual repo link in Boodle as s87 - In-Class Prototyping - 1
+## Advisors
 
-## User Credentials
+| Method | Endpoint | Description |
+|------|------|------|
+| GET | /api/advisors | Fetch all advisors |
+| GET | /api/advisors/:slug | Fetch advisor profile |
+| GET | /api/advisors/:slug/posts | Fetch posts by advisor |
+| POST | /api/advisors | Create advisor (Admin) |
+| PUT | /api/advisors/:id | Update advisor (Admin) |
+| DELETE | /api/advisors/:id | Delete advisor (Admin) |
 
-- Admin:
-   - username: admin@email.com
-   - password: password123
+## Advisor Applications
 
-- User:
-   - username: user@email.com
-   - password: password123
+| Method | Endpoint | Description |
+|------|------|------|
+| POST | /api/advisors/apply | Submit advisor application |
 
+---
 
-## Session 86 - Deliverables
+# 📊 Feature Completion Status
 
-- Backend API with CRUD
-- Backend API with Authentication.
-- Readme.md for Credentials and App Description
+---
+
+## 1. Core Application Features
+
+| Feature | Description | Status |
+|------|------|------|
+| User Registration | Allow users to create an account using email, username, and password | ✅ Complete |
+| User Login (JWT) | Authenticate users securely using JSON Web Tokens | ✅ Complete |
+| Password Hashing | Secure password storage using bcrypt | ✅ Complete |
+| Role-Based User System | Support Admin, Advisor, and Standard User roles | ✅ Complete |
+| Blog Post Creation | Authenticated users can publish articles | ✅ Complete |
+| Blog Post Editing | Authors and admins can edit posts | ✅ Complete |
+| Blog Post Deletion | Authors and admins can delete posts | ✅ Complete |
+| Blog Post Viewing | Public users can read all posts | ✅ Complete |
+| Post View Tracking | Track article view counts | ✅ Complete |
+| Search Posts | Search by title, advisor name, or author username | ✅ Complete |
+
+---
+
+## 2. Advisor Platform Features
+
+| Feature | Description | Status |
+|------|------|------|
+| Advisor Directory | Dedicated page listing transition advisors | ✅ Complete |
+| Advisor Profiles | Individual advisor pages with professional details | ✅ Complete |
+| Advisor–Post Association | Posts can be linked to advisors | ✅ Complete |
+| Advisor Article Aggregation | Advisor profiles display their authored posts | ✅ Complete |
+| Advisor Application System | Users can apply to become advisors | ✅ Complete |
+| Advisor Application Authentication Guard | Applications require authenticated users | ✅ Complete |
+| Admin Advisor Approval Workflow | Admin dashboard controls advisor approvals | ✅ Complete |
+| Advisor Profile Editing | Admin can update advisor profiles | ✅ Complete |
+
+---
+
+## 3. Platform Content Features
+
+| Feature | Description | Status |
+|------|------|------|
+| About RESET Page | Platform overview describing RESET mission | ✅ Complete |
+| Career Shift Guide (Start Here Page) | Structured roadmap for career transition | ✅ Complete |
+| YouTube Integration | Link to creator YouTube channel | ✅ Complete |
+| Advisor Insight Articles | Articles linked to advisor expertise | ✅ Complete |
+
+---
+
+## 4. Performance & Architecture
+
+| Feature | Description | Status |
+|------|------|------|
+| RESTful API Design | Structured backend endpoints | ✅ Complete |
+| Structured Controllers | Organized backend architecture | ✅ Complete |
+| Axios API Layer | Centralized frontend API communication | ✅ Complete |
+| Database Indexing | Indexed key fields for faster queries | ✅ Complete |
+| Response Compression | Reduced payload sizes using compression middleware | ✅ Complete |
+
+---
+
+## 📸 Screenshots
+
+### Homepage
+![Homepage](client/public/pages%20images/homepage.jpg)
+
+### Blog Article Page
+![Blog Article](client/public/pages%20images/blog-article-page.jpg)
+
+### Advisors Directory
+![Advisors Directory](client/public/pages%20images/advisors-page.jpg)
+
+### Admin Dashboard
+![Admin Dashboard](client/public/pages%20images/admin-dashboard.jpg)
+---
+
+# 📂 Project Structure
+
+```text
+reset
+│
+├── server
+│   ├── controllers
+│   │   ├── authController.js
+│   │   ├── postController.js
+│   │   └── advisorController.js
+│   │
+│   ├── models
+│   │   ├── User.js
+│   │   ├── Post.js
+│   │   └── Advisor.js
+│   │
+│   ├── routes
+│   │   ├── authRoutes.js
+│   │   ├── postRoutes.js
+│   │   └── advisorRoutes.js
+│   │
+│   ├── middleware
+│   │   └── auth.js
+│   │
+│   └── index.js
+│
+├── client
+│   ├── src
+│   │   ├── pages
+│   │   │   ├── Home.vue
+│   │   │   ├── PostDetails.vue
+│   │   │   ├── Advisors.vue
+│   │   │   ├── AdvisorProfile.vue
+│   │   │   ├── AdminDashboard.vue
+│   │   │   ├── Login.vue
+│   │   │   └── Register.vue
+│   │   │
+│   │   ├── router
+│   │   │   └── index.js
+│   │   │
+│   │   ├── services
+│   │   │   └── api.js
+│   │   │
+│   │   ├── main.js
+│   │   └── styles.css
+│   │
+│   └── vite.config.js
+│
+└── README.md
+
+```
+
+---
+
+## 🏗 Tech Stack
+
+**Frontend**
+
+- Vue 3
+- Vite
+- Vue Router
+- Axios
+
+**Backend**
+
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+
+**Authentication**
+
+- JSON Web Tokens (JWT)
+- bcrypt password hashing
+
+**Deployment**
+
+- Render (Backend API)
+- Vercel (Frontend)
+
+---
+
+## 🌐 Live Deployment
+
+### Frontend (Vercel)
+
+https://reset-platform.vercel.app
+
+### Backend API (Render)
+
+https://reset-backend.onrender.com
