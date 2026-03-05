@@ -269,4 +269,4 @@ https://reset-platform.vercel.app
 
 ### Backend API (Render)
 
-https://reset-backend.onrender.com
+https://reset-qjxx.onrender.com
